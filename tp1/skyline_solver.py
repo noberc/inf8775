@@ -46,26 +46,24 @@ class SkylineSolver:
         solution = self._brute_force(self.buildings, self.critical_points)
         self.skyline_parser.dump_critical_points(solution, output_file_path)
 
-
     def merge(self, critical_points1, critical_points2):
 
         h1 = 0
         h2 = 0
         ch = 0
 
-        idx1 = 0
-        idx2 = 0
+        cx1 = 0
+        cx2 = 0
+
+        i1 = 0
+        i2 = 0
 
         solution = []
 
-        while idx1 < len(critical_points1) and idx2 < len(critical_points2):
+        while i1 < len(critical_points1) and i2 < len(critical_points2):
 
-            (cx1, ch1) = critical_points1[idx1]
-            (cx2, ch2) = critical_points2[idx2]
-
-
-            idx1 += (cx1 <= cx2)
-            idx2 += (cx2 <= cx1)
+            (cx1, ch1) = critical_points1[i1]
+            (cx2, ch2) = critical_points2[i2]
 
             if cx1 < cx2:
                 h1 = ch1
@@ -82,12 +80,15 @@ class SkylineSolver:
             if list_empty or solution[-1][1] != ch:
                 solution.append((cx, ch))
 
-        if idx1 == len(critical_points1):
-            solution.extend(critical_points2[idx2:])
-        else:
-            solution.extend(critical_points1[idx1:])
-        return solution
+            i1 += cx1 <= cx2
+            i2 += cx2 <= cx1
 
+
+        if i1 == len(critical_points1):
+            solution.extend(critical_points2[i2:])
+        else:
+            solution.extend(critical_points1[i1:])
+        return solution
 
     def _divide_and_conquer(self, buildings):
         if len(buildings) <= 1:
@@ -114,15 +115,17 @@ class SkylineSolver:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-f", "--file",
-                        help="Input file with data",
-                        required=True,
-                        metavar='INPUT_FILE')
+    parser.add_argument(
+        "-f", "--file", help="Input file with data", required=True, metavar="INPUT_FILE"
+    )
 
-    parser.add_argument("-o", "--output",
-                        help="Output file to store results",
-                        required=True,
-                        metavar='OUTPUT_FILE')
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output file to store results",
+        required=True,
+        metavar="OUTPUT_FILE",
+    )
 
     args = parser.parse_args()
 
