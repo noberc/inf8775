@@ -63,26 +63,19 @@ class SkylineSolver:
             (cx1, ch1) = critical_points1[idx1]
             (cx2, ch2) = critical_points2[idx2]
 
-            (cx, ch) = (min(cx1, cx2), max(ch1, ch2))
+
+            idx1 += (cx1 <= cx2)
+            idx2 += (cx2 <= cx1)
 
             if cx1 < cx2:
                 h1 = ch1
-                (cx, ch) = (cx1, max(h1, h2))
-                idx1 += 1
-
             elif cx1 > cx2:
                 h2 = ch2
-                (cx, ch) = (cx2, max(h1, h2))
-                idx2 += 1
-
             else:
                 h1 = ch1
                 h2 = ch2
 
-                (cx, ch) = (cx1, max(h1, h2))
-
-                idx1 += 1
-                idx2 += 1
+            (cx, ch) = (min(cx1, cx2), max(h1, h2))
 
             list_empty = not len(solution)
 
@@ -115,7 +108,6 @@ class SkylineSolver:
             return
 
         solution = self._divide_and_conquer(self.buildings)
-        print(solution)
         self.skyline_parser.dump_critical_points(solution, output_file_path)
 
 
