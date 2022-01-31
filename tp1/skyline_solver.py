@@ -48,14 +48,10 @@ class SkylineSolver:
 
     def merge(self, critical_points1, critical_points2):
 
-        h1 = 0
-        h2 = 0
-        h = 0
-
-        i1 = 0
-        i2 = 0
-
         solution = []
+
+        h1 = h2 = h = 0
+        i1 = i2 = 0
 
         while i1 < len(critical_points1) and i2 < len(critical_points2):
 
