@@ -50,10 +50,7 @@ class SkylineSolver:
 
         h1 = 0
         h2 = 0
-        ch = 0
-
-        cx1 = 0
-        cx2 = 0
+        h = 0
 
         i1 = 0
         i2 = 0
@@ -73,16 +70,15 @@ class SkylineSolver:
                 h1 = ch1
                 h2 = ch2
 
-            (cx, ch) = (min(cx1, cx2), max(h1, h2))
+            (x, h) = (min(cx1, cx2), max(h1, h2))
 
             list_empty = not len(solution)
 
-            if list_empty or solution[-1][1] != ch:
-                solution.append((cx, ch))
+            if list_empty or solution[-1][1] != h:
+                solution.append((x, h))
 
             i1 += cx1 <= cx2
             i2 += cx2 <= cx1
-
 
         if i1 == len(critical_points1):
             solution.extend(critical_points2[i2:])
