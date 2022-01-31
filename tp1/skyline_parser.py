@@ -30,13 +30,16 @@ class SkylineParser:
 
         return buildings, critical_points
 
-    def parse_points(self, input_data):
+    def parse_points(self, input_data, from_file = True):
 
         buildings = []
         critical_points = []
 
         for line in input_data:
-            (x1, x2, y) = map(int, line.split())
+            if from_file:
+                (x1, x2, y) = map(int, line.split())
+            else:
+                (x1, x2, y) = line
 
             buildings.append((x1, x2, y))
             critical_points.append((x1, y))
