@@ -1,0 +1,17 @@
+<div id="mainBox">
+    <div id="toolBar">
+        <h2> Options</h2>
+        <button mat-raised-button (click)="reset()">
+            <mat-icon>sync</mat-icon>Reset
+        </button>
+        <p></p>
+        <p>Number of buildings
+            <mat-slider aria-label="unit(s)" (change)="changeNbBuildings($event)" thumbLabel tickInterval="1" step="1"
+                min="0" max="10" [value]="horizonService.nbBuildings"></mat-slider>
+        </p>
+
+        <mat-slide-toggle (change)="showCriticsPoints()">Show critcs points
+        </mat-slide-toggle>
+    </div>
+    <canvas #myCanvas></canvas>
+</div>
