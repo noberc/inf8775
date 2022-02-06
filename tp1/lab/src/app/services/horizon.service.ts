@@ -25,7 +25,7 @@ export class HorizonService {
   private pointSize: number = 5;
   listBuildings: Vec3[] = [];
   public nbBuildings = 5;
-  private listCriticPoints: Vec2[] = [];
+  public listCriticPoints: Vec2[] = [];
   public criticPoints = false;
 
   constructor() { }
@@ -66,6 +66,7 @@ export class HorizonService {
     this.ctx.lineWidth = thickness;
     this.ctx.strokeStyle = color;
     this.ctx.stroke();
+    this.ctx.lineWidth = 1;
   }
 
   drawArrow(p1: Vec2, p2: Vec2, color: string, thickness: number) {
@@ -141,10 +142,13 @@ export class HorizonService {
   }
 
   reset() {
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.origin = null;
     this.listBuildings = [];
     this.axes = [];
     this.listCriticPoints = [];
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.drawLine({ x: 0, y: 0 }, { x: 0, y: 0 }, "white", 1);
     this.initGraph();
   }
 
