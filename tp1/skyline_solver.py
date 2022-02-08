@@ -124,6 +124,6 @@ if __name__ == "__main__":
 
     skyline_solver = SkylineSolver()
     skyline_solver.load_data(args.file)
-    # skyLineSolver.brute_force(args.output)
-    skyline_solver.divide_and_conquer()
+    skyline_solver.brute_force()
+    # skyline_solver.divide_and_conquer()
     skyline_solver.dump_solution(args.output)
