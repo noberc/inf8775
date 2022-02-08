@@ -17,17 +17,11 @@ class SkylineSolver:
             input_file_path
         )
 
-    def should_elevate_point(self, critical_point, building):
-        (cx, cy) = critical_point
-        (bx1, bx2, by) = building
-
-        return (bx1 <= cx < bx2) and (by > cy)
-
     def _brute_force(self, buildings, critical_points):
         solution = []
         for (cx, cy) in critical_points:
             for (bx1, bx2, by) in buildings:
-                if self.should_elevate_point((cx, cy), (bx1, bx2, by)):
+                if (bx1 <= cx < bx2) and (by > cy):
                     cy = by
 
             list_empty = not len(solution)
