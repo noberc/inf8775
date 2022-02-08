@@ -3,65 +3,56 @@ import pandas as pd
 import glob
 import timeit
 
+pd.set_option('display.max_columns', None)
+
 class Profiler:
 
-    def __init__(self, function):
-        self.function = function
+    def __init__(self, df = None):
+        self.data = None
+        self.df = df
 
-    def timed_run(self):
-        samples_prefix = glob.glob("data/*_0")
-        samples_prefix = [sample.split('_', 1)[0] for sample in samples_prefix]
+    def timed_run(self, functions, samples_prefix, skyline_solver):
 
-        data = {'Taille': [int(prefix.split('N')[1]) for prefix in samples_prefix],
-                'Naif': [],
-                'DPR': []}
+        self.data = {'Taille': [int(prefix.split('N')[1]) for prefix in samples_prefix]}
 
-        for prefix in samples_prefix:
-            samples = glob.glob(prefix + "_*")
-            time = 0
+        for name, function in functions.items():
 
-            sample_size = int(prefix.split('N')[1])
-            sample_len = 1
+            self.data[name] = []
 
-            for sample in samples:
-                skyline_solver.load_data(sample)
+            for prefix in samples_prefix:
+                samples = glob.glob(prefix + "_*")
+                time = 0
 
-                time += timeit.Timer(self.function).timeit(number=1)
+                sample_len = 1
 
-                if sample_size >= 10000:
-                    break
+                for sample in samples:
+                    skyline_solver.load_data(sample)
 
-                sample_len = len(samples)
+                    time += timeit.Timer(function).timeit(number=1)
 
-            data['Naif'].append(time / sample_len)
+                    sample_len = len(samples)
 
-            print("brute force", sample_size, time / sample_len)
+                self.data[name].append(time / sample_len)
+
+        self.df = pd.DataFrame(self.data).sort_values('Taille')
+        self.df.to_csv('results.csv')
+        print(self.df)
+
         # return time
 
 
 
 
-skyline_solver = SkylineSolver()
-profiler = Profiler(skyline_solver.brute_force)
-profiler.timed_run()
+def compute_average_times():
+    skyline_solver = SkylineSolver()
+    samples_prefix = glob.glob("data/*_0")
+    samples_prefix = [sample.split('_', 1)[0] for sample in samples_prefix]
 
-# for index, prefix in enumerate(samples_prefix):
-#     samples = glob.glob(prefix + "_*")
-#     time = 0
+    functions = {'Naif': skyline_solver.brute_force,
+                 'DPR': skyline_solver.divide_and_conquer}
 
-#     sample_size = int(prefix.split('N')[1])
-#     sample_len = len(samples)
-
-#     for sample in samples:
-#         skyline_solver.load_data(sample)
-
-#         profiler = Profiler(skyline_solver.divide_and_conquer)
-#         time += timeit.Timer(profiler.timed_run).timeit(number=1)
-
-#     data['DPR'].append(time / sample_len)
-
-#     print("brute force", sample_size, time / sample_len)
+    profiler = Profiler()
+    profiler.timed_run(functions, samples_prefix, skyline_solver)
 
 
-# df = pd.DataFrame(data)
-# df.to_csv('results.csv')
+# compute_average_times()
