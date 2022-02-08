@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import Chart from 'chart.js/auto';
 
 
 export interface Vec2 {
@@ -17,20 +18,65 @@ export interface Vec3 {
 })
 export class HorizonService {
   public ctx: CanvasRenderingContext2D;
-  public ctxFront: CanvasRenderingContext2D;
+  public ctxChart: CanvasRenderingContext2D;
   private origin: Vec2 = null;
   private unitWidth: number = null;
   private unitHeight: number = null;
   private axes: Vec2[] = [];
   private pointSize: number = 5;
   listBuildings: Vec3[] = [];
-  public nbBuildings = 5;
+  public nbBuildings = 15;
   public listCriticPoints: Vec2[] = [];
   public criticPoints = false;
+  myChart;
 
   constructor() { }
 
-  setCanvas(canvas: CanvasRenderingContext2D) {
+  generatePlot(): Chart {
+    let listNaif: number[] = [];
+    let listDivid: number[] = [];
+    let abs: number[] = [];
+    for (let i = 0; i < 350; i += 50) {
+      this.nbBuildings = i;
+      this.reset();
+      let sol = this.calculSolution(1);
+      if (i % 200 === 0) {
+        abs.push(i)
+        listDivid.push(sol[0]);
+        listNaif.push(sol[1]);
+      }
+    }
+    console.log(listNaif);
+    console.log(listDivid);
+
+    return new Chart(this.ctxChart, {
+      type: 'line',
+      options: {
+        maintainAspectRatio: true,
+      },
+      data: {
+        labels: abs,
+        datasets: [{
+          label: 'My First Dataset',
+          data: listNaif,
+          fill: true,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }, {
+          label: 'My First Dataset',
+          data: listDivid,
+          fill: true,
+          borderColor: 'rgb(75, 0, 192)',
+          tension: 0.1
+        }
+        ],
+
+      }
+    });
+  }
+
+  setCanvas(canvas: CanvasRenderingContext2D, chartCanvas: CanvasRenderingContext2D) {
+    this.ctxChart = chartCanvas;
     this.ctx = canvas;
     this.unitWidth = this.ctx.canvas.width / 100;
     this.unitHeight = this.ctx.canvas.height / 100;
@@ -46,9 +92,35 @@ export class HorizonService {
     this.axes.push(abs);
     this.drawAxe();
     this.generateBuildings(this.nbBuildings);
-    console.log(this.listCriticPoints);
     this.sortCriticPoints();
+  }
+
+  calculSolution(methode: number): number[] {
+    let output: number[] = [];
+    let startTime = performance.now()
+    let sol: Vec2[] = [];
+    sol.push(this.origin);
+    for (let point of this.recursifAlgo(this.listBuildings)) {
+      sol.push(point);
+    }
+    sol;
+    let endTime = performance.now()
+    this.setTimeExecution('Divide', (endTime - startTime).toFixed(12).toString(), 20, 60)
+    output.push((endTime - startTime));
+    startTime = performance.now()
     this.naifAlgorithm();
+    endTime = performance.now()
+    this.setTimeExecution('Naif', (endTime - startTime).toFixed(12).toString(), 20, 20)
+    output.push((endTime - startTime));
+    this.listCriticPoints = sol;
+    this.drawHorizon(sol);
+
+    return output;
+  }
+
+  setTimeExecution(algorithme: string, time: string, posX: number, posY: number) {
+    this.ctx.font = "18px Arial";
+    this.ctx.fillText(algorithme + ": " + time + " milliseconds", posX, posY);
   }
 
   drawAxe() {
@@ -176,7 +248,7 @@ export class HorizonService {
     });
   }
 
-  naifAlgorithm() {
+  naifAlgorithm(): Vec2[] {
     let solution: Vec2[] = [];
     solution.push(this.origin);
     for (let point of this.listCriticPoints) {
@@ -191,9 +263,103 @@ export class HorizonService {
         solution.push(point);
       }
     }
-    this.listCriticPoints = solution;
-    console.log('solution', solution);
-    this.drawHorizon(solution);
+    //this.listCriticPoints = solution;
+    //console.log('solution', solution);
+    //this.drawHorizon(solution);
+    return solution;
+  }
+
+  dividAlgorithme(listBuilding: Vec3[]): Vec2[] {
+    let listCriticPointsA: Vec2[] = [];
+    let listCriticPointsB: Vec2[] = [];
+
+    if (listBuilding.length === 2) {
+      listCriticPointsA.push({ x: this.origin.x + listBuilding[0].x1, y: this.origin.y - listBuilding[0].h });
+      listCriticPointsA.push({ x: this.origin.x + listBuilding[0].x1 + Math.abs(listBuilding[0].x2 - listBuilding[0].x1), y: this.origin.y })
+      listCriticPointsB.push({ x: this.origin.x + listBuilding[1].x1, y: this.origin.y - listBuilding[1].h });
+      listCriticPointsB.push({ x: this.origin.x + listBuilding[1].x1 + Math.abs(listBuilding[1].x2 - listBuilding[1].x1), y: this.origin.y })
+      return this.fusion(listCriticPointsA, listCriticPointsB);
+    } else if (listBuilding.length === 1) {
+      listCriticPointsA.push({ x: this.origin.x + listBuilding[0].x1, y: this.origin.y - listBuilding[0].h });
+      listCriticPointsA.push({ x: this.origin.x + listBuilding[0].x1 + Math.abs(listBuilding[0].x2 - listBuilding[0].x1), y: this.origin.y })
+      return listCriticPointsA;
+    }
+    else {
+      return [];
+    }
+  }
+
+  sortList(list: Vec2[]) {
+    list.sort(function (a, b) {
+      return a.x - b.x;
+    });
+  }
+
+  fusion(listA: Vec2[], listB: Vec2[]) {
+    let solution: Vec2[] = [];
+    let listCriticPoints: Vec2[] = [];
+    for (let point of listA) {
+      listCriticPoints.push(point)
+    }
+    for (let point of listB) {
+      listCriticPoints.push(point)
+    }
+
+
+    this.sortList(listCriticPoints);
+    solution.push(listCriticPoints[0]);
+    let lineA: number = 10000;
+    let lineB: number = 10000;
+    for (let i = 0; i < listCriticPoints.length; i++) {
+      if (this.checkIfIsInList(listCriticPoints[i], listA)) {
+        lineA = listCriticPoints[i].y;
+      } else {
+        lineB = listCriticPoints[i].y;
+      }
+      listCriticPoints[i].y = Math.min(lineA, lineB);
+      if (i >= 1) {
+        if (listCriticPoints[i].y !== listCriticPoints[i - 1].y) {
+          solution.push(listCriticPoints[i]);
+        }
+      }
+    }
+    return solution;
+  }
+
+  checkIfIsInList(pointToFind: Vec2, listA: Vec2[]): boolean {
+    // return listA.find((x) => {
+    //   x === point
+    // })
+    for (let point of listA) {
+      if (pointToFind === point) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  recursifAlgo(listBuilding: Vec3[]): Vec2[] {
+    if (listBuilding.length <= 2) {
+      return this.dividAlgorithme(listBuilding);
+    } else {
+      const lenghtA = Math.floor(listBuilding.length / 2);
+      let listA: Vec3[] = [];
+      let listB: Vec3[] = [];
+      this.splitList(listBuilding, listA, listB, lenghtA);
+      let critcPointsA: Vec2[] = this.recursifAlgo(listA);
+      let critcPointsB: Vec2[] = this.recursifAlgo(listB);
+      return this.fusion(critcPointsA, critcPointsB)
+    }
+  }
+
+  splitList(listTosplit: Vec3[], listA: Vec3[], listB: Vec3[], lenghtA: number) {
+    for (let i = 0; i < listTosplit.length; i++) {
+      if (i < lenghtA) {
+        listA.push(listTosplit[i]);
+      } else {
+        listB.push(listTosplit[i]);
+      }
+    }
   }
 
   isPointInBuilding(point: Vec2, building: Vec3): boolean {

@@ -1,27 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HorizonService } from 'src/app/services/horizon.service';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
+import Chart from 'chart.js/auto';
+interface Algorithme {
+  value: number;
+  viewValue: string;
 }
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
-
 @Component({
   selector: 'app-horizon',
   templateUrl: './horizon.component.html',
@@ -29,10 +13,21 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class HorizonComponent implements OnInit {
   @ViewChild('myCanvas', { static: false }) myCanvas: ElementRef;
+  @ViewChild('myChartCanvas', { static: false }) myChartCanvas: ElementRef;
+
   public ctx: CanvasRenderingContext2D;
+  public ctxChart: CanvasRenderingContext2D;
   displayedColumns: string[] = ['x', 'y'];
   dataSource = [];
   fileUrl;
+  algo: Algorithme[] = [
+    { value: 1, viewValue: 'Naif' },
+    { value: 2, viewValue: 'Diviser pour reigner' },
+    { value: 3, viewValue: 'hybride' },
+  ];
+  public displayChart = 'none';
+  public displayBuilding = 'block';
+  myChart;
 
   constructor(public horizonService: HorizonService, private sanitizer: DomSanitizer) { }
 
@@ -43,14 +38,27 @@ export class HorizonComponent implements OnInit {
     this.ctx = this.myCanvas.nativeElement.getContext('2d');
     this.ctx.canvas.width = window.innerWidth * 0.65;
     this.ctx.canvas.height = window.innerHeight * 0.95;
-    this.horizonService.setCanvas(this.ctx);
+
+    this.ctxChart = this.myChartCanvas.nativeElement.getContext('2d');
+
+    this.horizonService.setCanvas(this.ctx, this.ctxChart);
     this.dataSource = this.horizonService.listCriticPoints;
     this.generateFileTxt();
   }
 
-  generateFileTxt(){
-    let output : string = '';
-    for(let point of this.dataSource){
+  showPlot() {
+    if (this.displayChart === 'block') {
+      this.displayChart = 'none';
+      this.displayBuilding = 'block';
+    } else {
+      this.displayChart = 'block';
+      this.displayBuilding = 'none';
+    }
+  }
+
+  generateFileTxt() {
+    let output: string = '';
+    for (let point of this.dataSource) {
       output += point.x.toString() + ' ' + point.y.toString() + '\n';
     }
     const blob = new Blob([output], { type: 'application/octet-stream' });
@@ -71,8 +79,19 @@ export class HorizonComponent implements OnInit {
     this.horizonService.showCriticsPoints();
   }
 
-  download(){
+  download() {
 
+  }
+
+  calculSolution() {
+    this.horizonService.calculSolution(1);
+    this.dataSource = this.horizonService.listCriticPoints;
+  }
+
+  genratePlot() {
+    this.myChart = this.horizonService.generatePlot();
+    //this.ctxChart.canvas.width = window.innerWidth * 0.50;
+    //this.ctxChart.canvas.height = window.innerHeight * 0.95;
   }
 
 
