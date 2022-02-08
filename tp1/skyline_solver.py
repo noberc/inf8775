@@ -37,14 +37,13 @@ class SkylineSolver:
 
         return solution
 
-    def brute_force(self, output_file_path):
+    def brute_force(self):
 
         if not len(self.buildings) or not len(self.critical_points):
             print("Load data first")
             return
 
-        solution = self._brute_force(self.buildings, self.critical_points)
-        self.skyline_parser.dump_critical_points(solution, output_file_path)
+        self.solution = self._brute_force(self.buildings, self.critical_points)
 
     def merge(self, critical_points1, critical_points2):
 
@@ -95,13 +94,15 @@ class SkylineSolver:
         solution = self.merge(critical_points1, critical_points2)
         return solution
 
-    def divide_and_conquer(self, output_file_path):
+    def divide_and_conquer(self):
         if not len(self.buildings) or not len(self.critical_points):
             print("Load data first")
             return
 
-        solution = self._divide_and_conquer(self.buildings)
-        self.skyline_parser.dump_critical_points(solution, output_file_path)
+        self.solution = self._divide_and_conquer(self.buildings)
+
+    def dump_solution(self, output_file_path):
+        self.skyline_parser.dump_critical_points(self.solution, output_file_path)
 
 
 if __name__ == "__main__":
@@ -121,7 +122,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    skyLineSolver = SkylineSolver()
-    skyLineSolver.load_data(args.file)
+    skyline_solver = SkylineSolver()
+    skyline_solver.load_data(args.file)
     # skyLineSolver.brute_force(args.output)
-    skyLineSolver.divide_and_conquer(args.output)
+    skyline_solver.divide_and_conquer()
+    skyline_solver.dump_solution(args.output)
