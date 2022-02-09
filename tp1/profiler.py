@@ -54,7 +54,7 @@ class Profiler:
         fig = px.scatter(
             self.df,
             x="Taille",
-            y=["Naif", "DPR"],
+            y=["Naif", "DPR", "DPRS"],
             log_x=True,
             log_y=True,
             trendline="ols",
@@ -70,9 +70,15 @@ class Profiler:
 
         alpha = model.iloc[1]["px_fit_results"].params[0]
         beta = model.iloc[1]["px_fit_results"].params[1]
+
         fig.data[3].name = ' y = ' + str(round(alpha, 2)) + ' + ' + str(round(beta, 2)) + 'x'
         fig.data[3].showlegend = True
 
+        alpha = model.iloc[2]["px_fit_results"].params[0]
+        beta = model.iloc[2]["px_fit_results"].params[1]
+
+        fig.data[5].name = ' y = ' + str(round(alpha, 2)) + ' + ' + str(round(beta, 2)) + 'x'
+        fig.data[5].showlegend = True
         fig.show()
 
 
@@ -84,6 +90,7 @@ def compute_average_times(profiler):
     functions = {
         "Naif": skyline_solver.brute_force,
         "DPR": skyline_solver.divide_and_conquer,
+        "DPRS": skyline_solver.divide_and_conquer_treshold,
     }
 
     profiler.timed_run(functions, samples_prefix, skyline_solver)
@@ -97,8 +104,6 @@ def plot_times(profiler, df=None):
         profiler.load_data(df)
         profiler.plot_data()
 
-
 profiler = Profiler()
-plot_times(profiler, pd.read_csv("results.csv"))
-
-# compute_average_times()
+# compute_average_times(profiler)
+plot_times(profiler, pd.read_csv('results.csv'))

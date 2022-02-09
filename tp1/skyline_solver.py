@@ -75,8 +75,8 @@ class SkylineSolver:
             solution.extend(critical_points1[i1:])
         return solution
 
-    def _divide_and_conquer(self, buildings):
-        if len(buildings) <= 1:
+    def _divide_and_conquer(self, buildings, treshold = 1):
+        if len(buildings) <= treshold:
             _, critical_points = self.skyline_parser.parse_points(buildings, False)
             return self._brute_force(buildings, critical_points)
 
@@ -94,6 +94,13 @@ class SkylineSolver:
             return
 
         self.solution = self._divide_and_conquer(self.buildings)
+
+    def divide_and_conquer_treshold(self):
+        if not len(self.buildings) or not len(self.critical_points):
+            print("Load data first")
+            return
+
+        self.solution = self._divide_and_conquer(self.buildings, 80)
 
     def dump_solution(self, output_file_path):
         self.skyline_parser.dump_critical_points(self.solution, output_file_path)
