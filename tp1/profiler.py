@@ -54,7 +54,7 @@ class Profiler:
         fig = px.scatter(
             self.df,
             x="Taille",
-            y="Naif",
+            y=["Naif", "DPR"],
             log_x=True,
             log_y=True,
             trendline="ols",
@@ -65,12 +65,14 @@ class Profiler:
         alpha = model.iloc[0]["px_fit_results"].params[0]
         beta = model.iloc[0]["px_fit_results"].params[1]
 
-        fig.data[0].name = 'observations'
-        fig.data[0].showlegend = True
-        fig.data[1].name = fig.data[1].name  + ' y = ' + str(round(alpha, 2)) + ' + ' + str(round(beta, 2)) + 'x'
+        fig.data[1].name = ' y = ' + str(round(alpha, 2)) + ' + ' + str(round(beta, 2)) + 'x'
         fig.data[1].showlegend = True
 
-        print(model.iloc[0]["px_fit_results"].params)
+        alpha = model.iloc[1]["px_fit_results"].params[0]
+        beta = model.iloc[1]["px_fit_results"].params[1]
+        fig.data[3].name = ' y = ' + str(round(alpha, 2)) + ' + ' + str(round(beta, 2)) + 'x'
+        fig.data[3].showlegend = True
+
         fig.show()
 
 
