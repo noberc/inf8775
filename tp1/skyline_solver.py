@@ -1,4 +1,5 @@
 import argparse
+import timeit
 
 from skyline_parser import SkylineParser
 
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         "--output",
         help="Output file to store results",
         required=False,
-        metavar="OUTPUT_FILE",
+        metavar="OUTPUT_FILE"
     )
 
     parser.add_argument(
@@ -129,7 +130,7 @@ if __name__ == "__main__":
         "--algorithm",
         help="The algorithm to use",
         required=True,
-        metavar="ALGORITHM",
+        metavar="ALGORITHM"
     )
 
     parser.add_argument(
@@ -137,7 +138,7 @@ if __name__ == "__main__":
         "--sample",
         help="Sample path",
         required=True,
-        metavar="SAMPLE",
+        metavar="SAMPLE"
     )
 
     parser.add_argument(
@@ -145,7 +146,7 @@ if __name__ == "__main__":
         "--print",
         help="Print results",
         required=False,
-        metavar="PRINT",
+        action="store_true"
     )
 
     parser.add_argument(
@@ -153,7 +154,7 @@ if __name__ == "__main__":
         "--time",
         help="Print execution time",
         required=False,
-        metavar="PRINT_EXECUTION",
+        action="store_true"
     )
 
     args = parser.parse_args()
@@ -170,8 +171,20 @@ if __name__ == "__main__":
         print("wrong algorithm:", args.algorithm)
     else:
         try:
+
             skyline_solver.load_data(args.sample)
-            functions[args.algorithm]()
-            skyline_solver.print_solution()
+
+            time = 0
+
+            if args.time:
+                time = timeit.Timer(functions[args.algorithm]).timeit(number=1) * 1000
+            else:
+                functions[args.algorithm]()
+
+            if args.print:
+                skyline_solver.print_solution()
+
+            if args.time:
+                print(time)
         except:
             pass
