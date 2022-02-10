@@ -59,3 +59,7 @@ class SkylineParser:
 
         for line in critical_points:
             self.opened_file.write(" ".join(map(str, line)) + "\n")
+
+    def print_critical_points(self, critical_points):
+        for line in critical_points:
+            print(" ".join(map(str, line)))

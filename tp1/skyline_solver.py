@@ -105,26 +105,73 @@ class SkylineSolver:
     def dump_solution(self, output_file_path):
         self.skyline_parser.dump_critical_points(self.solution, output_file_path)
 
+    def print_solution(self):
+        self.skyline_parser.print_critical_points(self.solution)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-f", "--file", help="Input file with data", required=True, metavar="INPUT_FILE"
+        "-f", "--file", help="Input file with data", required=False, metavar="INPUT_FILE"
     )
 
     parser.add_argument(
         "-o",
         "--output",
         help="Output file to store results",
-        required=True,
+        required=False,
         metavar="OUTPUT_FILE",
+    )
+
+    parser.add_argument(
+        "-a",
+        "--algorithm",
+        help="The algorithm to use",
+        required=True,
+        metavar="ALGORITHM",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--sample",
+        help="Sample path",
+        required=True,
+        metavar="SAMPLE",
+    )
+
+    parser.add_argument(
+        "-p",
+        "--print",
+        help="Print results",
+        required=False,
+        metavar="PRINT",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--time",
+        help="Print execution time",
+        required=False,
+        metavar="PRINT_EXECUTION",
     )
 
     args = parser.parse_args()
 
     skyline_solver = SkylineSolver()
-    skyline_solver.load_data(args.file)
-    skyline_solver.brute_force()
-    # skyline_solver.divide_and_conquer()
-    skyline_solver.dump_solution(args.output)
+
+    functions = {
+        "brute": skyline_solver.brute_force,
+        "recursif": skyline_solver.divide_and_conquer,
+        "seuil": skyline_solver.divide_and_conquer_treshold,
+    }
+
+    if args.algorithm not in functions:
+        print("wrong algorithm:", args.algorithm)
+    else:
+        try:
+            skyline_solver.load_data(args.sample)
+            functions[args.algorithm]()
+            skyline_solver.print_solution()
+        except:
+            pass
