@@ -1,4 +1,5 @@
 import argparse
+import timeit
 
 from skyline_parser import SkylineParser
 
@@ -17,17 +18,11 @@ class SkylineSolver:
             input_file_path
         )
 
-    def should_elevate_point(self, critical_point, building):
-        (cx, cy) = critical_point
-        (bx1, bx2, by) = building
-
-        return (bx1 <= cx < bx2) and (by > cy)
-
     def _brute_force(self, buildings, critical_points):
         solution = []
         for (cx, cy) in critical_points:
             for (bx1, bx2, by) in buildings:
-                if self.should_elevate_point((cx, cy), (bx1, bx2, by)):
+                if (bx1 <= cx < bx2) and (by > cy):
                     cy = by
 
             list_empty = not len(solution)
@@ -81,8 +76,8 @@ class SkylineSolver:
             solution.extend(critical_points1[i1:])
         return solution
 
-    def _divide_and_conquer(self, buildings):
-        if len(buildings) <= 1:
+    def _divide_and_conquer(self, buildings, treshold = 1):
+        if len(buildings) <= treshold:
             _, critical_points = self.skyline_parser.parse_points(buildings, False)
             return self._brute_force(buildings, critical_points)
 
@@ -101,29 +96,95 @@ class SkylineSolver:
 
         self.solution = self._divide_and_conquer(self.buildings)
 
+    def divide_and_conquer_treshold(self):
+        if not len(self.buildings) or not len(self.critical_points):
+            print("Load data first")
+            return
+
+        self.solution = self._divide_and_conquer(self.buildings, 80)
+
     def dump_solution(self, output_file_path):
         self.skyline_parser.dump_critical_points(self.solution, output_file_path)
+
+    def print_solution(self):
+        self.skyline_parser.print_critical_points(self.solution)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-f", "--file", help="Input file with data", required=True, metavar="INPUT_FILE"
+        "-f", "--file", help="Input file with data", required=False, metavar="INPUT_FILE"
     )
 
     parser.add_argument(
         "-o",
         "--output",
         help="Output file to store results",
+        required=False,
+        metavar="OUTPUT_FILE"
+    )
+
+    parser.add_argument(
+        "-a",
+        "--algorithm",
+        help="The algorithm to use",
         required=True,
-        metavar="OUTPUT_FILE",
+        metavar="ALGORITHM"
+    )
+
+    parser.add_argument(
+        "-e",
+        "--sample",
+        help="Sample path",
+        required=True,
+        metavar="SAMPLE"
+    )
+
+    parser.add_argument(
+        "-p",
+        "--print",
+        help="Print results",
+        required=False,
+        action="store_true"
+    )
+
+    parser.add_argument(
+        "-t",
+        "--time",
+        help="Print execution time",
+        required=False,
+        action="store_true"
     )
 
     args = parser.parse_args()
 
     skyline_solver = SkylineSolver()
-    skyline_solver.load_data(args.file)
-    # skyLineSolver.brute_force(args.output)
-    skyline_solver.divide_and_conquer()
-    skyline_solver.dump_solution(args.output)
+
+    functions = {
+        "brute": skyline_solver.brute_force,
+        "recursif": skyline_solver.divide_and_conquer,
+        "seuil": skyline_solver.divide_and_conquer_treshold,
+    }
+
+    if args.algorithm not in functions:
+        print("wrong algorithm:", args.algorithm)
+    else:
+        try:
+
+            skyline_solver.load_data(args.sample)
+
+            time = 0
+
+            if args.time:
+                time = timeit.Timer(functions[args.algorithm]).timeit(number=1) * 1000
+            else:
+                functions[args.algorithm]()
+
+            if args.print:
+                skyline_solver.print_solution()
+
+            if args.time:
+                print(time)
+        except:
+            pass
