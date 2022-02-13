@@ -17,15 +17,6 @@
         </mat-slide-toggle>
         <p></p>
         <p></p>
-        <h4>Algorithms choice: </h4>
-        <mat-form-field appearance="fill">
-            <mat-label>Algorithm</mat-label>
-            <mat-select>
-                <mat-option *ngFor="let algorithme of algo" [value]="algorithme.value">
-                    {{algorithme.viewValue}}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
         <p></p>
         <button mat-raised-button color="accent" (click)="calculSolution()">
             <mat-icon>build</mat-icon>Calcul solution
@@ -33,7 +24,7 @@
         <p></p>
         <p></p>
         <button mat-raised-button color="accent" (click)="genratePlot()">
-            <mat-icon>build</mat-icon>Generate plot complexity
+            <mat-icon>build</mat-icon>Generate graph
         </button>
     </div>
 

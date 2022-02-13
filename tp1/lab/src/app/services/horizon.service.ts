@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import Chart from 'chart.js/auto';
+import regression from 'regression';
 
 
 export interface Vec2 {
@@ -35,39 +36,90 @@ export class HorizonService {
   generatePlot(): Chart {
     let listNaif: number[] = [];
     let listDivid: number[] = [];
+    let linearDivData: number[][] = [];
+    let linearDivNaif: number[][] = [];
     let abs: number[] = [];
-    for (let i = 0; i < 350; i += 50) {
+    for (let i = 1; i < 7000; i += 500) {
       this.nbBuildings = i;
       this.reset();
       let sol = this.calculSolution(1);
-      if (i % 200 === 0) {
+      
         abs.push(i)
-        listDivid.push(sol[0]);
+        listDivid.push(sol[0]*10);
+        const linearDiv = []
+        linearDiv.push(i);
+        linearDiv.push(sol[0]*10)
+
+        const linearNaif = []
+        linearNaif.push(i);
+        linearNaif.push(sol[1])
+        linearDivNaif.push(linearNaif);
+
+        linearDivData.push(linearDiv);
         listNaif.push(sol[1]);
-      }
+      
     }
-    console.log(listNaif);
-    console.log(listDivid);
+    const clean_data_Naif = linearDivNaif
+    const my_regression_Naif = regression.polynomial(
+      clean_data_Naif,
+      { order: 1 }
+    );
+    const useful_points_Naif = my_regression_Naif.points.map(([x, y]) => {
+      return y;    
+      // or {x, y}, depending on whether you just want y-coords for a 'linear' plot
+      // or x&y for a 'scatterplot'
+  })
+
+  const clean_data_Div= linearDivData
+    const my_regression_Div = regression.polynomial(
+      clean_data_Div,
+      { order: 1 }
+    );
+    const useful_points_Div = my_regression_Div.points.map(([x, y]) => {
+      return y;    
+      // or {x, y}, depending on whether you just want y-coords for a 'linear' plot
+      // or x&y for a 'scatterplot'
+  })
+  console.log(my_regression_Naif);
+  console.log(linearDivData);
 
     return new Chart(this.ctxChart, {
-      type: 'line',
+      type: 'bubble',
       options: {
-        maintainAspectRatio: true,
+        responsive: false
       },
       data: {
         labels: abs,
-        datasets: [{
-          label: 'My First Dataset',
+        datasets: [
+          {
+          label: 'Naif',
           data: listNaif,
           fill: true,
           borderColor: 'rgb(75, 192, 192)',
           tension: 0.1
-        }, {
-          label: 'My First Dataset',
-          data: listDivid,
-          fill: true,
+        },
+        {
+          type:'line',
+          label: 'Regression',
+          data: useful_points_Div,
+          fill: false,
           borderColor: 'rgb(75, 0, 192)',
           tension: 0.1
+        },  
+          {
+          type:'line',
+          label: 'Regression',
+          data: useful_points_Naif,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }, 
+        {
+          label: 'Divid to conquer',
+          data: listDivid,
+          //fill: true,
+          borderColor: 'rgb(75, 0, 192)',
+          //tension: 0.1
         }
         ],
 

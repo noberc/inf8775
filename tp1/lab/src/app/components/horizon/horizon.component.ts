@@ -27,7 +27,7 @@ export class HorizonComponent implements OnInit {
   ];
   public displayChart = 'none';
   public displayBuilding = 'block';
-  myChart;
+  myChart : Chart;
 
   constructor(public horizonService: HorizonService, private sanitizer: DomSanitizer) { }
 
@@ -36,10 +36,36 @@ export class HorizonComponent implements OnInit {
 
   ngAfterViewInit(): void {
     this.ctx = this.myCanvas.nativeElement.getContext('2d');
-    this.ctx.canvas.width = window.innerWidth * 0.65;
+    this.ctx.canvas.width = window.innerWidth * 0.75;
     this.ctx.canvas.height = window.innerHeight * 0.95;
 
     this.ctxChart = this.myChartCanvas.nativeElement.getContext('2d');
+    this.ctxChart.canvas.width = window.innerWidth * 0.75;
+    this.ctxChart.canvas.height = window.innerHeight * 0.95;
+    this.myChart = new Chart(this.ctxChart, {
+      type: 'line',
+      options: {
+        responsive: false
+      },
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Naif',
+          data: [],
+          fill: true,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }, {
+          label: 'Divid to conquer',
+          data: [],
+          fill: true,
+          borderColor: 'rgb(75, 0, 192)',
+          tension: 0.1
+        }
+        ],
+
+      }
+    });
 
     this.horizonService.setCanvas(this.ctx, this.ctxChart);
     this.dataSource = this.horizonService.listCriticPoints;
@@ -89,7 +115,9 @@ export class HorizonComponent implements OnInit {
   }
 
   genratePlot() {
+    this.myChart.destroy();
     this.myChart = this.horizonService.generatePlot();
+    
     //this.ctxChart.canvas.width = window.innerWidth * 0.50;
     //this.ctxChart.canvas.height = window.innerHeight * 0.95;
   }
