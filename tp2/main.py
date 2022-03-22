@@ -1,8 +1,8 @@
 import argparse
-from glouton import Glouton
+from Algo import Algo
 
 if __name__ == "__main__":
-    glouton = Glouton()
+    algo = Algo()
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -11,5 +11,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    boxs = glouton.parse_file(args.file)
-    glouton.run(boxs)
+    boxs = algo.parse_file(args.file)
+    algo.glouton(boxs)
+    algo.dynamic(boxs)

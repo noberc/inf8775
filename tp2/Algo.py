@@ -1,5 +1,17 @@
 
-class Glouton:
+
+
+class Pair:
+    def __init__(self, data, box, h): 
+        self.data = data
+        self.box = box
+        self.h = h
+
+
+    def getData(self):
+        return self.data
+       
+class Algo:
     def __init__(self):
         self.opened_file = None
     
@@ -46,12 +58,12 @@ class Glouton:
 
         return boxs
 
-    def sortFunction(self, x):
+    def sortFunctionL(self, x):
         return x[0]
 
 
-    def run(self, listBox):
-        listBox.sort(key = self.sortFunction)
+    def glouton(self, listBox):
+        listBox.sort(key = self.sortFunctionL)
         listBox.reverse()
         sol = []
         sol.append(listBox[0])
@@ -63,3 +75,36 @@ class Glouton:
                 currentBox = box
 
         print(sol)
+
+
+    def sortFunctionLP(self, x):
+        return x[0] * x[1]
+
+    def findMaxKey(self, x):
+        return x.h
+    
+    def dynamic(self, listBox):
+        listBox.sort(key = self.sortFunctionLP)
+        listBox.reverse()
+        pairList = []
+
+        for i in range(len(listBox)):
+            maxBox = Pair(listBox[i], (-1,-1,-1), 0)
+            for j in range(len(pairList)):
+                if(listBox[i][0]< pairList[j].data[0] and listBox[i][1]< pairList[j].data[1] and pairList[j].h > maxBox.data[2]):         
+                    maxBox = pairList[j]
+            pair  = Pair(listBox[i], maxBox, listBox[i][2]+maxBox.h)
+            pairList.append(pair)  
+
+        currentBox = max(pairList, key=self.findMaxKey)
+        sol = []
+        i = 0
+        while (currentBox.data != currentBox.box.data) and (i< len(pairList)):
+            sol.append(currentBox.data)
+            currentBox = currentBox.box
+            i+=1
+        print(sol)
+
+
+            
+        
