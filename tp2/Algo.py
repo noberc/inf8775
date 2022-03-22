@@ -73,8 +73,7 @@ class Algo:
             if(box[0] < currentBox[0] and box[1] < currentBox[1]):
                 sol.append(box)
                 currentBox = box
-
-        print(sol)
+        return sol
 
 
     def sortFunctionLP(self, x):
@@ -98,12 +97,54 @@ class Algo:
 
         currentBox = max(pairList, key=self.findMaxKey)
         sol = []
+        sol.append(currentBox.data)
         i = 0
         while (currentBox.data != currentBox.box.data) and (i< len(pairList)):
             sol.append(currentBox.data)
             currentBox = currentBox.box
             i+=1
-        print(sol)
+        sol.reverse()
+        return sol
+
+    def taboo(self, listBox):
+        currentSol = self.glouton(listBox)
+        currentSol.reverse()
+        copyCurrentSol = currentSol.copy()
+        for box in currentSol:
+            listBox.remove(box)
+        #print("------------------")
+        #print(listBox)
+        i = 0
+        while len(listBox) > 0:
+            currentBox = listBox[0]
+            index = None
+            for j in range(len(currentSol)):
+                if(currentBox[0]< currentSol[j][0]) and (currentBox[1]< currentSol[j][1]):
+                    index = j
+                    break
+            if(index != None):
+                currentSol.insert(index, currentBox)
+                #print(currentSol)
+                currentSol = self.glouton(currentSol)
+                #print(currentSol)
+            if(self.findH(currentSol) <= self.findH(copyCurrentSol)):
+                currentSol = copyCurrentSol.copy()
+            else : 
+                copyCurrentSol = currentSol.copy()
+            #print(currentSol)
+            #print("----------------------")
+            listBox.remove(currentBox)
+        currentSol.reverse()
+        print(currentSol)
+            
+
+    def findH(self, listBox):
+        h = 0
+        for box in listBox:
+            h += box[2]
+        return h
+
+
 
 
             

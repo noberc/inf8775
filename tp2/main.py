@@ -12,5 +12,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     boxs = algo.parse_file(args.file)
-    algo.glouton(boxs)
-    algo.dynamic(boxs)
+    print(algo.glouton(boxs))
+    algo.taboo(boxs)
+    #algo.dynamic(boxs)
