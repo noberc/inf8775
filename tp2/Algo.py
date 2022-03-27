@@ -59,7 +59,7 @@ class Algo:
         return boxs
 
     def sortFunctionL(self, x):
-        return x[0]
+        return x[2] * x[1]
 
 
     def glouton(self, listBox):
@@ -70,14 +70,14 @@ class Algo:
         currentBox = sol[0]
 
         for box in listBox:
-            if(box[0] < currentBox[0] and box[1] < currentBox[1]):
+            if(box[2] < currentBox[2] and box[1] < currentBox[1]):
                 sol.append(box)
                 currentBox = box
         return sol
 
 
     def sortFunctionLP(self, x):
-        return x[0] * x[1]
+        return x[1] * x[2]
 
     def findMaxKey(self, x):
         return x.h
@@ -90,14 +90,13 @@ class Algo:
         for i in range(len(listBox)):
             maxBox = Pair(listBox[i], (-1,-1,-1), 0)
             for j in range(len(pairList)):
-                if(listBox[i][0]< pairList[j].data[0] and listBox[i][1]< pairList[j].data[1] and pairList[j].h > maxBox.data[2]):         
+                if(listBox[i][2]< pairList[j].data[2] and listBox[i][1]< pairList[j].data[1] and pairList[j].h > maxBox.data[0]):
                     maxBox = pairList[j]
             pair  = Pair(listBox[i], maxBox, listBox[i][2]+maxBox.h)
             pairList.append(pair)  
 
         currentBox = max(pairList, key=self.findMaxKey)
         sol = []
-        sol.append(currentBox.data)
         i = 0
         while (currentBox.data != currentBox.box.data) and (i< len(pairList)):
             sol.append(currentBox.data)

@@ -12,6 +12,21 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     boxs = algo.parse_file(args.file)
-    print(algo.glouton(boxs))
-    algo.taboo(boxs)
+    resultDyn = algo.dynamic(boxs)
+    resultGlouton = algo.glouton(boxs)
+
+    sumDyn = 0
+    for res in resultDyn:
+        sumDyn += res[0]
+
+
+    sumGlout = 0
+    for res in resultGlouton:
+        sumGlout += res[0]
+
+    print("dynamic: ", resultDyn)
+    print("glouton: ", resultGlouton)
+    print("dynamic height: ", sumDyn)
+    print("glouton height: ", sumGlout)
+
     #algo.dynamic(boxs)
