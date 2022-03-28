@@ -92,11 +92,10 @@ class Algo:
             for j in range(len(pairList)):
                 if(listBox[i][2] < pairList[j].data[2] and listBox[i][1] < pairList[j].data[1] and pairList[j].h > maxBox.h):
                     maxBox.box = pairList[j]
-                    maxBox.h += maxBox.box.h
+                    maxBox.h = listBox[i][0] + pairList[j].h
             pairList.append(maxBox)
 
         currentBox = max(pairList, key=self.findMaxKey)
-        print(currentBox.h)
         sol = []
         i = 0
         while (currentBox is not None) and (i < len(pairList)):
