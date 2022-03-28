@@ -115,16 +115,21 @@ class Algo:
 
         maxSol = []
 
+        setBox = set(listBox.copy())
         for box in currentSol:
-            listBox.remove(box)
+            setBox.remove(box)
 
         for count in range(100):
             newSol = []
             maxTabuList = []
             bestHeight = -1
 
-            for box in listBox:
-                newSol, newTabuList = self.createNewNeighbour(box, currentSol, tabuList, count)
+            for box in setBox:
+
+                if box in tabuList.keys() and tabuList[box] > count:
+                    continue
+
+                newSol, newTabuList = self.createNewNeighbour(box, currentSol)
 
                 newHeight = self.findH(newSol)
 
@@ -137,7 +142,7 @@ class Algo:
 
             for tabuBox in maxTabuList:
                 tabuList[tabuBox] = count + random.randint(7, 10)
-
+                setBox.add(tabuBox)
 
             if bestHeight > self.findH(bestSol):
                 bestSol = maxSol
@@ -145,15 +150,12 @@ class Algo:
         return bestSol
             
             
-    def createNewNeighbour(self, boxToAdd, currentSol, tabuList, count):
+    def createNewNeighbour(self, boxToAdd, currentSol):
         #print(currentSol)
         bestNeighbor = []
         foundIndex = -1
         newTabuList = []
         for i, box in enumerate(currentSol):
-            if box in tabuList.keys() and tabuList[box] > count:
-                continue
-
             fits = boxToAdd[2] < box[2] and boxToAdd[1] < box[1]
 
             if not fits and foundIndex == -1:
