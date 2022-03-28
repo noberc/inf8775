@@ -109,52 +109,69 @@ class Algo:
         return sol
 
     def taboo(self, listBox):
-        #print('listBox', listBox)
+        tabuList = {}
         currentSol = self.glouton(listBox)
-        #print(currentSol)
-        currentSol.reverse()
-        #print('currentSol', self.findH(currentSol))
-        #print('----------------')
-        k = 0
-        while k < 100:
-            listNeighbours = []
-            listNeighbours.append(currentSol.copy())
-            for box in listBox:
-                neighbour = self.createNewNeighbour(box, currentSol.copy())
-                listNeighbours.append(neighbour)
-            maxNeighbour = max(listNeighbours, key=self.findH)
-            #print(maxNeighbour)
-            #print('maxNeighbour', self.findH(maxNeighbour))
-            listBoxToRemove = list(set(maxNeighbour) - set(currentSol))
-            #print('listBoxToRemove', listBoxToRemove)
-            for box in listBoxToRemove:
-                listBox.remove(box)
-            maxNeighbour.reverse()
-            currentSol = maxNeighbour
-            k+=1
-            if(len(listBox) == 0):
-                k = 100
-        #         print('no more box')
-        # print(listBox)
-        currentSol.reverse()
-        return currentSol
-            
-            
-    def createNewNeighbour(self, boxToAdd, currentSol):
-        #print(currentSol)
-        i = 0
+        bestSol = currentSol.copy()
+
+        maxSol = []
+
         for box in currentSol:
-            if boxToAdd[2] < box[2] and boxToAdd[1] < box[1]:
-                currentSol.insert(i, boxToAdd)
-                #print('add', boxToAdd)
+            listBox.remove(box)
+
+        for count in range(100):
+            newSol = []
+            maxTabuList = []
+            bestHeight = -1
+
+            for box in listBox:
+                newSol, newTabuList = self.createNewNeighbour(box, currentSol, tabuList, count)
+
+                newHeight = self.findH(newSol)
+
+                if newHeight > self.findH(maxSol):
+                    maxSol = newSol
+                    bestHeight = newHeight
+                    maxTabuList = newTabuList
+
+            currentSol = maxSol
+
+            for tabuBox in maxTabuList:
+                tabuList[tabuBox] = count + 7
+
+
+            if bestHeight > self.findH(bestSol):
+                bestSol = maxSol
+
+        return bestSol
+            
+            
+    def createNewNeighbour(self, boxToAdd, currentSol, tabuList, count):
+        #print(currentSol)
+        bestNeighbor = []
+        foundIndex = -1
+        newTabuList = []
+        for i, box in enumerate(currentSol):
+            if box in tabuList.keys() and tabuList[box] > count:
+                continue
+
+            fits = boxToAdd[2] < box[2] and boxToAdd[1] < box[1]
+
+            if not fits and foundIndex == -1:
+                if i > 0:
+                    bestNeighbor = currentSol[:i-1]
+
+                bestNeighbor.append(boxToAdd)
+                foundIndex = i
+
+            fits = boxToAdd[2] > box[2] and boxToAdd[1] > box[1]
+
+            if foundIndex > -1 and fits:
+                bestNeighbor.extend(currentSol[i:])
+                newTabuList = currentSol[foundIndex:i]
+
                 break
-            i+=1
-        #print('av gl', currentSol)
-        currentSol = self.gloutonWithoutSort(currentSol)
-        #print('ap gl',currentSol)
-        #print('+++++++++++++++')
-        currentSol.reverse()
-        return currentSol
+
+        return bestNeighbor, newTabuList
 
 
     def findH(self, listBox):
