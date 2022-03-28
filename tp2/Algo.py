@@ -1,4 +1,4 @@
-
+import random
 
 
 class Pair:
@@ -136,7 +136,7 @@ class Algo:
             currentSol = maxSol
 
             for tabuBox in maxTabuList:
-                tabuList[tabuBox] = count + 7
+                tabuList[tabuBox] = count + random.randint(7, 10)
 
 
             if bestHeight > self.findH(bestSol):
