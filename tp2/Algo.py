@@ -96,7 +96,7 @@ class Algo:
             pairList.append(maxBox)
 
         currentBox = max(pairList, key=self.findMaxKey)
-        print(currentBox.h)
+        #print(currentBox.h)
         sol = []
         i = 0
         while (currentBox is not None) and (i < len(pairList)):

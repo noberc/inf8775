@@ -24,8 +24,8 @@ if __name__ == "__main__":
     for res in resultGlouton:
         sumGlout += res[0]
 
-    print("dynamic: ", resultDyn)
-    print("glouton: ", resultGlouton)
+    #print("dynamic: ", resultDyn)
+    #print("glouton: ", resultGlouton)
     print("dynamic height: ", sumDyn)
     print("glouton height: ", sumGlout)
 
