@@ -161,8 +161,6 @@ class Algo:
             h += box[0]
         return h
 
-
-
-
-            
-        
+    def print(self, boxs):
+        for line in boxs:
+            print(" ".join(map(str, line)))
