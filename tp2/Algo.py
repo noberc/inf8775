@@ -89,19 +89,21 @@ class Algo:
         pairList = []
 
         for i in range(len(listBox)):
-            maxBox = Pair(listBox[i], None, listBox[i][0])
+            maxBox = Pair(listBox[i], None, 0)
             for j in range(len(pairList)):
                 if(listBox[i][2] < pairList[j].data[2]) and (listBox[i][1] < pairList[j].data[1]) and (pairList[j].h > maxBox.h):
                     maxBox.box = pairList[j]
-                    maxBox.h = listBox[i][0] + pairList[j].h
+                    maxBox.h = pairList[j].h
+
+            maxBox.h += listBox[i][0]
             pairList.append(maxBox)
 
-        currentBox = max(pairList, key=self.findMaxKey)
+        maxBox = max(pairList, key=self.findMaxKey)
         sol = []
         i = 0
-        while (currentBox is not None) and (i < len(pairList)):
-            sol.append(currentBox.data)
-            currentBox = currentBox.box
+        while (maxBox is not None) and (i < len(pairList)):
+            sol.append(maxBox.data)
+            maxBox = maxBox.box
             i+=1
         sol.reverse()
         return sol
