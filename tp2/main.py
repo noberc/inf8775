@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     boxs = algo.parse_file(args.file)
     resultDyn = algo.dynamic(boxs.copy())
-    resultGlouton = algo.glouton(boxs)
+    resultGlouton = algo.glouton(boxs.copy())
     resultTaboo = algo.taboo(boxs.copy())
 
     sumDyn = algo.findH(resultDyn)

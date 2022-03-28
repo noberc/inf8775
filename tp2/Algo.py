@@ -33,6 +33,8 @@ class Algo:
             print(f"Unexpected error opening {input_file_path}")
             return [], []
 
+        #next(self.opened_file)
+
         boxs = self.parse_boxs(self.opened_file)
 
         self.opened_file.close()
@@ -89,7 +91,7 @@ class Algo:
         for i in range(len(listBox)):
             maxBox = Pair(listBox[i], None, listBox[i][0])
             for j in range(len(pairList)):
-                if(listBox[i][2] < pairList[j].data[2] and listBox[i][1] < pairList[j].data[1] and pairList[j].h > maxBox.h):
+                if(listBox[i][2] < pairList[j].data[2]) and (listBox[i][1] < pairList[j].data[1]) and (pairList[j].h > maxBox.h):
                     maxBox.box = pairList[j]
                     maxBox.h = listBox[i][0] + pairList[j].h
             pairList.append(maxBox)
@@ -112,7 +114,7 @@ class Algo:
         #print('currentSol', self.findH(currentSol))
         #print('----------------')
         k = 0
-        while k < 300:
+        while k < 100:
             listNeighbours = []
             listNeighbours.append(currentSol.copy())
             for box in listBox:
