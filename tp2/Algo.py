@@ -7,9 +7,6 @@ class Pair:
         self.box = box
         self.h = h
 
-
-    def getData(self):
-        return self.data
        
 class Algo:
     def __init__(self):
@@ -36,8 +33,6 @@ class Algo:
             print(f"Unexpected error opening {input_file_path}")
             return [], []
 
-        next(self.opened_file)
-
         boxs = self.parse_boxs(self.opened_file)
 
         self.opened_file.close()
@@ -46,6 +41,7 @@ class Algo:
 
     def parse_boxs(self, input_data, from_file = True):
         boxs = []
+        
 
         for box in input_data:
             
@@ -64,6 +60,10 @@ class Algo:
 
     def glouton(self, listBox):
         listBox.sort(key = self.sortFunctionL)
+        sol = self.gloutonWithoutSort(listBox)
+        return sol
+
+    def gloutonWithoutSort(self, listBox):
         listBox.reverse()
         sol = []
         sol.append(listBox[0])
@@ -74,7 +74,6 @@ class Algo:
                 sol.append(box)
                 currentBox = box
         return sol
-
 
     def sortFunctionLP(self, x):
         return x[1] * x[2]
@@ -106,40 +105,58 @@ class Algo:
         return sol
 
     def taboo(self, listBox):
+        #print('listBox', listBox)
         currentSol = self.glouton(listBox)
+        #print(currentSol)
         currentSol.reverse()
-        copyCurrentSol = currentSol.copy()
-        for box in currentSol:
-            listBox.remove(box)
-        #print("------------------")
-        #print(listBox)
-        while len(listBox) > 0:
-            currentBox = listBox[0]
-            index = None
-            for j in range(len(currentSol)):
-                if(currentBox[0]< currentSol[j][0]) and (currentBox[1]< currentSol[j][1]):
-                    index = j
-                    break
-            if(index != None):
-                currentSol.insert(index, currentBox)
-                #print(currentSol)
-                currentSol = self.glouton(currentSol)
-                #print(currentSol)
-            if(self.findH(currentSol) <= self.findH(copyCurrentSol)):
-                currentSol = copyCurrentSol.copy()
-            else : 
-                copyCurrentSol = currentSol.copy()
-            #print(currentSol)
-            #print("----------------------")
-            listBox.remove(currentBox)
+        #print('currentSol', self.findH(currentSol))
+        #print('----------------')
+        k = 0
+        while k < 300:
+            listNeighbours = []
+            listNeighbours.append(currentSol.copy())
+            for box in listBox:
+                neighbour = self.createNewNeighbour(box, currentSol.copy())
+                listNeighbours.append(neighbour)
+            maxNeighbour = max(listNeighbours, key=self.findH)
+            #print(maxNeighbour)
+            #print('maxNeighbour', self.findH(maxNeighbour))
+            listBoxToRemove = list(set(maxNeighbour) - set(currentSol))
+            #print('listBoxToRemove', listBoxToRemove)
+            for box in listBoxToRemove:
+                listBox.remove(box)
+            maxNeighbour.reverse()
+            currentSol = maxNeighbour
+            k+=1
+            if(len(listBox) == 0):
+                k = 100
+        #         print('no more box')
+        # print(listBox)
         currentSol.reverse()
-        print(currentSol)
+        return currentSol
             
+            
+    def createNewNeighbour(self, boxToAdd, currentSol):
+        #print(currentSol)
+        i = 0
+        for box in currentSol:
+            if boxToAdd[2] < box[2] and boxToAdd[1] < box[1]:
+                currentSol.insert(i, boxToAdd)
+                #print('add', boxToAdd)
+                break
+            i+=1
+        #print('av gl', currentSol)
+        currentSol = self.gloutonWithoutSort(currentSol)
+        #print('ap gl',currentSol)
+        #print('+++++++++++++++')
+        currentSol.reverse()
+        return currentSol
+
 
     def findH(self, listBox):
         h = 0
         for box in listBox:
-            h += box[2]
+            h += box[0]
         return h
 
 
