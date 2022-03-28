@@ -7,10 +7,20 @@ class Pair:
         self.box = box
         self.h = h
 
+class Neighbour:
+    def __init__(self, box, index): 
+        self.box = box
+        self.index = index
+
+    def decrementIndex(self):
+        self.index-=1
+
        
 class Algo:
     def __init__(self):
         self.opened_file = None
+        self.indexTabou = 7
+        self.tabouItteration = 100
     
     def open_file(self, input_file_path, permissions):
         try:
@@ -110,13 +120,15 @@ class Algo:
 
     def taboo(self, listBox):
         #print('listBox', listBox)
+        tabouList = []
         currentSol = self.glouton(listBox)
         #print(currentSol)
         currentSol.reverse()
         #print('currentSol', self.findH(currentSol))
         #print('----------------')
         k = 0
-        while k < 100:
+        while k < self.tabouItteration:
+            
             listNeighbours = []
             listNeighbours.append(currentSol.copy())
             for box in listBox:
@@ -129,6 +141,8 @@ class Algo:
             #print('listBoxToRemove', listBoxToRemove)
             for box in listBoxToRemove:
                 listBox.remove(box)
+                neighbour = Neighbour(box, 7)
+            self.checkIndexTabouList(tabouList, listBox)
             maxNeighbour.reverse()
             currentSol = maxNeighbour
             k+=1
@@ -166,3 +180,13 @@ class Algo:
     def print(self, boxs):
         for line in boxs:
             print(" ".join(map(str, line)))
+
+    def checkIndexTabouList(self, tabouList, listBox):
+        for neighbour in tabouList:
+            neighbour.decrementIndex()
+            if neighbour.index == 0:
+                listBox.append(neighbour.box)
+                tabouList.remove(neighbour)
+                break
+
+
