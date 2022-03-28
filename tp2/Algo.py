@@ -88,17 +88,18 @@ class Algo:
         pairList = []
 
         for i in range(len(listBox)):
-            maxBox = Pair(listBox[i], (-1,-1,-1), 0)
+            maxBox = Pair(listBox[i], None, listBox[i][0])
             for j in range(len(pairList)):
-                if(listBox[i][2]< pairList[j].data[2] and listBox[i][1]< pairList[j].data[1] and pairList[j].h > maxBox.data[0]):
-                    maxBox = pairList[j]
-            pair  = Pair(listBox[i], maxBox, listBox[i][2]+maxBox.h)
-            pairList.append(pair)  
+                if(listBox[i][2] < pairList[j].data[2] and listBox[i][1] < pairList[j].data[1] and pairList[j].h > maxBox.h):
+                    maxBox.box = pairList[j]
+                    maxBox.h += maxBox.box.h
+            pairList.append(maxBox)
 
         currentBox = max(pairList, key=self.findMaxKey)
+        print(currentBox.h)
         sol = []
         i = 0
-        while (currentBox.data != currentBox.box.data) and (i< len(pairList)):
+        while (currentBox is not None) and (i < len(pairList)):
             sol.append(currentBox.data)
             currentBox = currentBox.box
             i+=1
@@ -113,7 +114,6 @@ class Algo:
             listBox.remove(box)
         #print("------------------")
         #print(listBox)
-        i = 0
         while len(listBox) > 0:
             currentBox = listBox[0]
             index = None
