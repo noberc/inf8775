@@ -1,6 +1,9 @@
 
 
 
+import time
+
+
 class Pair:
     def __init__(self, data, box, h): 
         self.data = data
@@ -159,15 +162,21 @@ class Algo:
         i = 0
         for box in currentSol:
             if boxToAdd[2] < box[2] and boxToAdd[1] < box[1]:
-                currentSol.insert(i, boxToAdd)
+                currentSol.insert(i-1, boxToAdd)
                 #print('add', boxToAdd)
                 break
             i+=1
+        if i == len(currentSol):
+            currentSol.insert(0, boxToAdd)
+            #print('add', boxToAdd)
         #print('av gl', currentSol)
+        currentSol.reverse()
+        if boxToAdd not in currentSol:
+            print(boxToAdd, "not in ", currentSol)
         currentSol = self.gloutonWithoutSort(currentSol)
         #print('ap gl',currentSol)
         #print('+++++++++++++++')
-        currentSol.reverse()
+        #currentSol.reverse()
         return currentSol
 
 
@@ -189,4 +198,47 @@ class Algo:
                 tabouList.remove(neighbour)
                 break
 
+    def avrage(self, path):
+        print('avrage', path)
+        gloutonTime = 0
+        dynamiqueTime = 0
+        tabouTime = 0
+        gloutonSize= 0
+        dynamiqueSize = 0
+        tabouSize= 0
+        for i in range(10):
+            path = path[:len(path)- 5] + str(i+1) + path[len(path)- 4:]
+            print(path)
+            boxs = self.parse_file(path)
 
+            start = time.time()
+            sol = self.taboo(boxs.copy())
+            tabouTime += (time.time() - start)
+            tabouSize += self.findH(sol)
+
+            start = time.time()
+            sol = self.glouton(boxs.copy())
+            gloutonTime += (time.time() - start)
+            gloutonSize += self.findH(sol)
+
+            start = time.time()
+            sol = self.dynamic(boxs.copy())
+            dynamiqueTime += (time.time() - start)
+            dynamiqueSize += self.findH(sol)
+
+        gloutonTime = gloutonTime/10
+        dynamiqueTime = dynamiqueTime/10
+        tabouTime = tabouTime/10
+
+        gloutonSize = gloutonSize/10
+        dynamiqueSize = dynamiqueSize/10
+        tabouSize = tabouSize/10
+
+        print('gloutonSize', gloutonSize)
+        print('dynamiqueSize', dynamiqueSize)
+        print('tabouSize', tabouSize)
+        print('gloutonTime', gloutonTime)
+        print('dynamiqueTime', dynamiqueTime)
+        print('tabouTime', tabouTime)
+        
+    
