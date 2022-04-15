@@ -60,9 +60,8 @@ if __name__ == "__main__":
             if args.print:
                 algo.print(solution)
             if args.time:
-                print('time', time.time() - start)
-                print('size', algo.findH(solution))
-                #algo.avrage(args.sample)
+                print(time.time() - start)
+
         except:
             pass
 
