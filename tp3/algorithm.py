@@ -5,9 +5,9 @@ import random
 
 class Atome:
     def __init__(self, type, index):
-        self.type =type
-        self.edges = []
-        self.index = index
+        self.type = type # type de l'atome
+        self.edges = []  # liste des arrete connecte a ce site d'atome 
+        self.index = index  # index ordonne 
         
 
 class Cristal:
@@ -37,21 +37,23 @@ class Cristal:
 
         self.atomeTypes = list(map(int, f[2].split()))
         
+        # creation de la matrice d'energie
         for i in range(self.k):
             self.energieMatrix.append(list(map(int, f[4+i].split())))
         
-
+        # creation liste de site d'atome
         for i in range(self.t):
             atome = Atome(None, i)
             self.listAtomes.append(atome)
 
+        # creation de la liste des arretes
         for i in range(self.nbEdge):
             edge = list(map(int, f[5+self.k+i].split()))
             self.listEdges.append(edge)
             self.listAtomes[edge[0]].edges.append(edge)
             self.listAtomes[edge[1]].edges.append(edge)
        
-
+        # creation matrice des gradient (voir rapport)
         for i in range(self.k):  
             m = sum(self.energieMatrix[i]) / len(self.energieMatrix[i])
             self.atomeGradient.append(m)
@@ -61,7 +63,7 @@ class Cristal:
 
 
 
-    def firstAlgo(self):
+    def glouton(self):
         
         copylistAtome = self.listAtomes.copy()
         copyAtomeTypes = self.atomeTypes.copy()
@@ -90,45 +92,9 @@ class Cristal:
        
         return solution
 
-    def secondAlgo(self):
-        
-        copylistAtome = self.listAtomes.copy()
-        copyAtomeTypes = self.atomeTypes.copy()
-        solution = []
-        openList = []
-        closeList = []
-        
 
-        currentAtome = self.findMaxEdgesAtome(copylistAtome)
-        lowGradient = self.findLowGradient(copyAtomeTypes)
-        if(lowGradient != None):
-            currentAtome.type = lowGradient
-            solution.append(currentAtome)
-            closeList.append(currentAtome.index)
-
-        i = 0
-        while len(solution) <  len(copylistAtome):
-
-            for edge in currentAtome.edges:
-                if edge[0] not in closeList:
-                    openList.append(copylistAtome[edge[0]])
-                    closeList.append(edge[0])
-                    
-                if edge[1] not in closeList:
-                    openList.append(copylistAtome[edge[1]])
-                    closeList.append(edge[1])
-
-            currentAtome = self.findMaxEdgesAtome(openList)
-            closeList.append(currentAtome.index)
-            openList.remove(currentAtome)
-            low = self.findLowGradient(copyAtomeTypes)
-            currentAtome.type = low
-            solution.append(currentAtome)
-            i+=1
-    
-        solution = sorted(solution, key=lambda atome: atome.index)
-        return solution
-
+    # fonction qui verifie que tout les atomes ont bien ete utiliser en comparrant
+    # self.atomeTypes  ==  solA  
     def verifySolution(self, solution):
         solA = []
         for i in range(self.k):
@@ -143,7 +109,7 @@ class Cristal:
 
 
         
-
+    # calcule l'elergie de la solution passer en parametre 
     def calculEnergieSolution(self, solution):
         e = 0
         for edge in self.listEdges:
@@ -190,6 +156,7 @@ class Cristal:
             atomeTypes[max] -= 1        
         return max 
 
+    # affiche la solution 
     def printSolution(self, solution):
         sol = ""
         for atome in solution:
@@ -224,8 +191,9 @@ class Cristal:
                 tabooList.append(index2)
 
                 # verification si meilleur solution trouver 
-                if self.calculEnergieSolution(listAtome) < minEnergieSolution :
-                    minEnergieSolution = self.calculEnergieSolution(listAtome)
+                energie = self.calculEnergieSolution(listAtome)
+                if energie < minEnergieSolution :
+                    minEnergieSolution = energie
                     if(p):
                         self.printSolution(listAtome)
                     else: 
@@ -250,7 +218,7 @@ class Cristal:
         
     def run(self, file, p):
             self.parse_file(file)
-            sol1 = self.firstAlgo()
+            sol1 = self.glouton()
             minEnergieSolution = self.calculEnergieSolution(sol1)
             self.taboo(sol1, minEnergieSolution, p)
 
